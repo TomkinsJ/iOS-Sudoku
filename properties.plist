@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>puzzlesCompleted</key>
+	<integer>0</integer>
+	<key>hardTime</key>
+	<real>10000000</real>
+	<key>mediumTime</key>
+	<real>10000000</real>
+	<key>easyTime</key>
+	<real>10000000</real>
+	<key>timeAttempts</key>
+	<true/>
+	<key>showIncorrect</key>
+	<true/>
+	<key>showHints</key>
+	<true/>
+</dict>
+</plist>
