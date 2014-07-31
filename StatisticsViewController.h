@@ -15,6 +15,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *mediumTimeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *hardTimeLabel;
 
-- (IBAction)clearStats:(id)sender;
+- (IBAction)resetStatistics:(id)sender;
 
 @end

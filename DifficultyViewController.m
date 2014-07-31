@@ -10,7 +10,10 @@
 #import "SudokuViewController.h"
 #import "Sudoku.h"
 
-@interface DifficultyViewController ()
+@interface DifficultyViewController (){
+    NSMutableDictionary *properties;
+    NSString *path;
+}
 
 @end
 
@@ -30,7 +33,41 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    UIImageView *background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackground.jpg"]];
+    NSError *error;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    path = [documentsDirectory stringByAppendingPathComponent:@"properties.plist"];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if (![fileManager fileExistsAtPath: path])
+    {
+        NSString *bundle = [[NSBundle mainBundle] pathForResource:@"properties" ofType:@"plist"];
+        [fileManager copyItemAtPath:bundle toPath: path error:&error];
+    }
+    
+    properties = [[NSMutableDictionary alloc] initWithContentsOfFile: path];
+
+    UIImageView *background;
+    if ([properties objectForKey:@"colourScheme"]) {
+        // choose background from options plist
+        if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"original"]) {
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackground.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"blue"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackgroundBlue.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"brown"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackgroundBrown.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"purple"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackgroundPurple.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"black"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackgroundBlack.jpg"]];
+        }
+    } else {
+        background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"DiffBackgroundBrown.jpg"]];
+        
+    }
+        
+        
     [self.view addSubview: background];
     background.frame = self.view.bounds;
     [self.view sendSubviewToBack: background];
@@ -47,7 +84,7 @@
     if ([[segue identifier] isEqualToString:@"easySudoku"]) {
         SudokuViewController *sudokuViewController = (SudokuViewController *)[segue destinationViewController];
         NSInteger holes = (15 + arc4random_uniform(25 - 15 + 1)); // between 15 and 25 holes
-        NSArray *boards = [Sudoku generateSudokuWithHoles:holes withUniqueSolution:NO];
+        NSArray *boards = [Sudoku generateSudokuWithHoles:holes withUniqueSolution:YES];
         [sudokuViewController setCompleteSudoku:[boards objectAtIndex:0]];
         [sudokuViewController setIncompleteSudoku:[boards objectAtIndex:1]];
         [sudokuViewController setDifficulty:@"easy"];

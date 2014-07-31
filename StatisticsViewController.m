@@ -36,12 +36,6 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    UIImageView *background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackground.jpg"]];
-    [self.view addSubview: background];
-    background.frame = self.view.bounds;
-    [self.view sendSubviewToBack: background];
-    self.view.backgroundColor = [UIColor clearColor];
-    
     NSError *error;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -56,6 +50,35 @@
     }
     
     properties = [[NSMutableDictionary alloc] initWithContentsOfFile: path];
+    
+    UIImageView *background;
+   
+    if ([properties objectForKey:@"colourScheme"]) {
+
+        // choose background from options plist
+        if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"original"]) {
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackground.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"blue"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackgroundBlue.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"brown"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackgroundBrown.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"purple"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackgroundPurple.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"black"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackgroundBlack.jpg"]];
+        }
+        
+    } else {
+        background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"StatsBackgroundBrown.jpg"]];
+        
+    }
+    
+    [self.view addSubview: background];
+    background.frame = self.view.bounds;
+    [self.view sendSubviewToBack: background];
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    
     
     [puzzlesCompletedLabel setText:[NSString stringWithFormat:@"%@", [properties valueForKey:@"puzzlesCompleted"]]];
 
@@ -72,7 +95,7 @@
     }
 }
 
-- (IBAction)clearStats:(id)sender{
+- (IBAction)resetStatistics:(id)sender{
 
     [properties setValue:[NSNumber numberWithInteger:10000000] forKey:@"easyTime"];
     [properties setValue:[NSNumber numberWithInteger:10000000] forKey:@"mediumTime"];

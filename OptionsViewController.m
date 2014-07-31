@@ -12,6 +12,7 @@
 @interface OptionsViewController (){
     NSMutableDictionary *properties;
     NSString *path;
+    UIImageView *background;
 }
 
 @end
@@ -21,6 +22,7 @@
 @synthesize showIncorrectSwitch;
 @synthesize showHintsSwitch;
 @synthesize timeAttemptsSwitch;
+@synthesize colourSegmentedControl;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -36,11 +38,11 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
-    UIImageView *background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"OtherBackground.jpg"]];
-    [self.view addSubview: background];
-    background.frame = self.view.bounds;
-    [self.view sendSubviewToBack: background];
-    self.view.backgroundColor = [UIColor clearColor];
+    UIFont *font = [UIFont boldSystemFontOfSize:15.0f];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
+                                                           forKey:NSFontAttributeName];
+    [colourSegmentedControl setTitleTextAttributes:attributes
+                                    forState:UIControlStateNormal];
     
     NSError *error;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -56,6 +58,34 @@
     }
     
     properties = [[NSMutableDictionary alloc] initWithContentsOfFile: path];
+ 
+    if ([properties objectForKey:@"colourScheme"]) {
+
+        // choose background from options plist
+        if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"original"]) {
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackground.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"blue"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBlue.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"brown"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBrown.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"purple"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundPurple.jpg"]];
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"black"]){
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBlack.jpg"]];
+        }
+        
+    } else {
+        background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBrown.jpg"]];
+        [colourSegmentedControl setSelectedSegmentIndex:2];
+        
+    }
+    
+    [self.view addSubview: background];
+    background.frame = self.view.bounds;
+    [self.view sendSubviewToBack: background];
+    self.view.backgroundColor = [UIColor clearColor];
+
+ 
     
     if ([[properties valueForKey:@"showIncorrect"]boolValue] == YES) {
         [showIncorrectSwitch setOn:YES];
@@ -75,6 +105,18 @@
         [timeAttemptsSwitch setOn:NO];
     }
     
+    NSString *colourScheme = [properties valueForKey:@"colourScheme"];
+    if ([colourScheme isEqualToString:@"original"]) {
+        [colourSegmentedControl setSelectedSegmentIndex:0];
+    } else if ([colourScheme isEqualToString:@"blue"]){
+        [colourSegmentedControl setSelectedSegmentIndex:1];
+    } else if ([colourScheme isEqualToString:@"brown"]){
+        [colourSegmentedControl setSelectedSegmentIndex:2];
+    } else if ([colourScheme isEqualToString:@"purple"]){
+        [colourSegmentedControl setSelectedSegmentIndex:3];
+    } else if ([colourScheme isEqualToString:@"black"]){
+        [colourSegmentedControl setSelectedSegmentIndex:4];
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -102,7 +144,61 @@
     } else {
         [properties setValue:[NSNumber numberWithBool:NO] forKey:@"timeAttempts"];
     }
+    
+    switch ([colourSegmentedControl selectedSegmentIndex]) {
+        case 0:
+            [properties setValue:@"original" forKey:@"colourScheme"];
+            break;
+        case 1:
+            [properties setValue:@"blue" forKey:@"colourScheme"];
+            break;
+        case 2:
+            [properties setValue:@"brown" forKey:@"colourScheme"];
+            break;
+        case 3:
+            [properties setValue:@"purple" forKey:@"colourScheme"];
+            break;
+        case 4:
+            [properties setValue:@"black" forKey:@"colourScheme"];
+            break;
+        default:
+            break;
+    }
+
     [properties writeToFile:path atomically:YES];
+}
+
+-(IBAction)changeColourScheme:(id)sender{
+    UISegmentedControl *colourPicker = (UISegmentedControl *)sender;
+    
+    UIImageView *newbackground;
+    
+    switch ([colourPicker selectedSegmentIndex]) {
+        case 0:
+            newbackground = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackground.jpg"]];
+            break;
+        case 1:
+            newbackground = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBlue.jpg"]];
+            break;
+        case 2:
+            newbackground = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBrown.jpg"]];
+            break;
+        case 3:
+            newbackground = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundPurple.jpg"]];
+            break;
+        case 4:
+            newbackground = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"GenericBackgroundBlack.jpg"]];
+            break;
+        default:
+            break;
+    }
+    
+    [background removeFromSuperview];
+    [self.view addSubview: newbackground];
+    newbackground.frame = self.view.bounds;
+    [self.view sendSubviewToBack: newbackground];
+    self.view.backgroundColor = [UIColor clearColor];
+    background = newbackground;
     
 }
 

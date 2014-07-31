@@ -7,10 +7,12 @@
 //
 
 #import "SudokuViewController.h"
+#import <sys/utsname.h>
 
 @interface SudokuViewController (){
     NSMutableDictionary *properties;
     NSString *path;
+    UIColor *highlightedColour;
 }
 
 @end
@@ -19,8 +21,6 @@
 
 #define correctColour [UIColor colorWithRed:0/255.0 green:220.0/255.0 blue:0/255.0 alpha:1.0]
 #define incorrectColour [UIColor colorWithRed:255.0/255.0 green:0/255.0 blue:0/255.0 alpha:1.0]
-#define highlightedColour [UIColor colorWithRed:94.0/255.0 green:121.0/255.0 blue:157.0/255.0 alpha:1.0]
-
 
 @synthesize completeSudoku;
 @synthesize incompleteSudoku;
@@ -43,47 +43,39 @@
     return self;
 }
 
+NSString* machineName()
+{
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    return [NSString stringWithCString:systemInfo.machine
+                              encoding:NSUTF8StringEncoding];
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    UIImageView *background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackground.jpg"]];
-    [self.view addSubview: background];
-    background.frame = self.view.bounds;
-    [self.view sendSubviewToBack: background];
-    self.view.backgroundColor = [UIColor clearColor];
-    UIImageView *grid = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"grid.png"]];
-    [self.view addSubview: grid];
-    grid.frame = self.view.bounds;
+    /*if (!([[[UIDevice currentDevice]model]rangeOfString:@"iPad"].location == NSNotFound)) {
+        iPad = YES;
+    }*/
     
+    /*if ([machineName()rangeOfString:@"ipad"].location == NSNotFound) {
+        iPad = YES;
+        NSLog(@"yes");
+    }*/
     
-    // draw the buttons to hold the 81 numbers of the Sudoku board
-    int cellCount = 0;
-    int xCoord = 20;
-    for (int i = 0; i <= 8; i++){
-        int yCoord = 99;
-        for (int j = 0; j <= 8; j++) {
-            UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-            button.frame = CGRectMake(xCoord, yCoord, 30, 33);
-            button.titleLabel.font = [UIFont systemFontOfSize:21.0];
-            NSString *buttonTitle;
-            
-            if ([[incompleteSudoku objectAtIndex:cellCount]dug]) {
-                buttonTitle = @"";
-            } else {
-                buttonTitle = [NSString stringWithFormat:@"%ld", (long)[[incompleteSudoku objectAtIndex:cellCount]number]];
-                button.enabled = NO; // this is a given, so disable button
-            }
-            
-            [button setTitle:buttonTitle forState:UIControlStateNormal];
-            [button setTag:cellCount]; // tag will match the index of the value in both complete and active sudoku
-            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-            [button addTarget:self action:@selector(cellPressed:) forControlEvents:UIControlEventTouchUpInside]; // run cellPressed: when a cell is highlighted
-            [[self view] addSubview:button];
-            yCoord += 34;
-            cellCount++;
-        }
-        xCoord += 31;
+    NSString* deviceName = [[UIDevice currentDevice]model];
+    BOOL not4InchScreen = NO;
+    if ((![machineName()isEqualToString:@"iPhone5,1"]) &&
+        (![machineName()isEqualToString:@"iPhone5,2"]) &&
+        (![machineName()isEqualToString:@"iPhone5,3"]) &&
+        (![machineName()isEqualToString:@"iPhone5,4"]) &&
+        (![machineName()isEqualToString:@"iPhone6,1"]) &&
+        (![machineName()isEqualToString:@"iPhone6,2"]) &&
+        (![deviceName isEqualToString:@"iPhone Simulator"]) &&
+        ([machineName()rangeOfString:@"ipad"].location == NSNotFound)) {
+        not4InchScreen = YES;
     }
     
     NSError *error;
@@ -100,6 +92,93 @@
     }
     
     properties = [[NSMutableDictionary alloc] initWithContentsOfFile: path];
+    
+    UIImageView *background;
+    if ([properties objectForKey:@"colourScheme"]) {
+
+        // choose background from options plist
+        if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"original"]) {
+        
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackground.jpg"]];
+            highlightedColour = [UIColor colorWithRed:94.0/255.0 green:121.0/255.0 blue:157.0/255.0 alpha:1.0];
+    
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"blue"]){
+        
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackgroundBlue.jpg"]];
+            highlightedColour = [UIColor colorWithRed:166.0/255.0 green:207.0/255.0 blue:255.0/255.0 alpha:1.0];
+    
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"brown"]){
+        
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackgroundBrown.jpg"]];
+            highlightedColour = [UIColor colorWithRed:255.0/255.0 green:214.0/255.0 blue:166.0/255.0 alpha:1.0];
+        
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"purple"]){
+        
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackgroundPurple.jpg"]];
+            highlightedColour = [UIColor colorWithRed:248.0/255.0 green:166.0/255.0 blue:255.0/255.0 alpha:1.0];
+
+        } else if ([[properties valueForKey:@"colourScheme"]isEqualToString:@"black"]){
+        
+            background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackgroundBlack.jpg"]];
+            highlightedColour = [UIColor colorWithRed:186.0/255.0 green:186.0/255.0 blue:186.0/255.0 alpha:1.0];
+        }
+    } else {
+        background = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SudokuBackgroundBrown.jpg"]];
+        
+    }
+    
+    [self.view addSubview: background];
+    background.frame = self.view.bounds;
+    [self.view sendSubviewToBack: background];
+    self.view.backgroundColor = [UIColor clearColor];
+    UIImageView *grid = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"grid.png"]];
+    [self.view addSubview: grid];
+    grid.frame = self.view.bounds;
+    
+    // draw the buttons to hold the 81 numbers of the Sudoku board
+    int cellCount = 0;
+    int xCoord = 20;
+    int ySize = 33;
+    if (not4InchScreen) {
+        ySize = 28;
+    }
+    
+    for (int i = 0; i <= 8; i++){
+        
+        int yCoord = 99;
+        if (not4InchScreen) {
+            yCoord = 83;
+        }
+        
+        for (int j = 0; j <= 8; j++) {
+            UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+            button.frame = CGRectMake(xCoord, yCoord, 30, ySize);
+            button.titleLabel.font = [UIFont systemFontOfSize:21.0];
+            
+            NSString *buttonTitle;
+            if ([[incompleteSudoku objectAtIndex:cellCount]dug]) {
+                buttonTitle = @"";
+            } else {
+                buttonTitle = [NSString stringWithFormat:@"%ld", (long)[[incompleteSudoku objectAtIndex:cellCount]number]];
+                button.enabled = NO; // this is a given, so disable button
+            }
+            
+            [button setTitle:buttonTitle forState:UIControlStateNormal];
+            [button setTag:cellCount]; // tag will match the index of the value in both complete and active sudoku
+            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            [button addTarget:self action:@selector(cellPressed:) forControlEvents:UIControlEventTouchUpInside]; // run cellPressed: when a cell is highlighted
+            [[self view] addSubview:button];
+            if (not4InchScreen) {
+                yCoord += 29;
+            } else {
+                yCoord += 34;
+            }
+            cellCount++;
+        }
+        xCoord += 31;
+    }
+    
+
     
     if ([[properties valueForKey:@"timeAttempts"]boolValue] == YES) {
         [timeDisplay setText:[NSString stringWithFormat:@"0:00"]];
@@ -144,7 +223,6 @@
         [[activeSudoku objectAtIndex:[activeCell tag]]setNumber:[[[sender titleLabel]text]integerValue]];
         [activeCell setTitle:[[sender titleLabel]text] forState:UIControlStateNormal];
         [activeCell setBackgroundColor:[UIColor clearColor]];
-        [activeCell setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     
         if ([[properties valueForKey:@"showIncorrect"]boolValue] == YES) {
             if ([[[sender titleLabel]text]integerValue] == [[completeSudoku objectAtIndex:[activeCell tag]]number]) {
@@ -152,6 +230,8 @@
             } else {
                 [activeCell setTitleColor:incorrectColour forState:UIControlStateNormal];
             }
+        } else {
+            [activeCell setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
         }
         
         activeCell = nil;

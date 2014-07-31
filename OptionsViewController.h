@@ -15,5 +15,8 @@
 @property (strong, nonatomic) IBOutlet UISwitch *showIncorrectSwitch;
 @property (strong, nonatomic) IBOutlet UISwitch *showHintsSwitch;
 @property (strong, nonatomic) IBOutlet UISwitch *timeAttemptsSwitch;
+@property (strong, nonatomic) IBOutlet UISegmentedControl *colourSegmentedControl;
+
+- (IBAction)changeColourScheme:(id)sender;
 
 @end
